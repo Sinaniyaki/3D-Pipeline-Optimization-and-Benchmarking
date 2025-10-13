@@ -1,0 +1,125 @@
+Environment Setup (DVR)
+Initial Setup
+Edited environment.yaml for DVR project: changed python=3.8.2 ➝ python=3.7 due to compatibility issues.
+
+Created the conda environment manually (dvr) since the environment.yaml didn't work as expected.
+
+Attempted to install PyTorch and Torchvision as stated in the GitHub README but failed via both pip and conda.
+
+Decided to manually set:
+
+pytorch=1.7.1
+
+torchvision=0.8.2
+These were the versions verified as compatible in the documentation.
+
+Dataset Download (DVR)
+Used the bash scripts/download_data.sh provided by DVR to download datasets.
+
+Faced issues running the bash script due to incorrect line endings (\r\n from Windows format) being interpreted wrongly in the WSL bash environment.
+
+Partially completed dataset downloads (DTU subset).
+
+Testing DVR Demo
+Initial Test Errors
+Attempted running the DVR demo with pretrained model and config file.
+
+Got a PIL-related error: _imaging module missing.
+
+Resolved by reinstalling Pillow:
+pip uninstall pillow
+pip install pillow==8.0.1
+CUDA/GPU Compatibility
+Encountered warnings related to GPU compatibility (RTX 3070).
+
+PyTorch and Torchvision versions were compatible, but needed to change to CUDA 11.
+
+Model Configuration Insights
+DTU Dataset Configuration
+Used default config file from repo, modified for the DTU dataset.
+
+Explanation of parameter choices:
+
+n_views: 49: DTU has 49–64 images per scan; 49 selected for consistency.
+
+n_views_input: 10: Balance between quality and performance.
+
+img_size: [1600, 1200]: Matches DTU image resolution.
+
+depth_range: [0, 2.4]: Based on multi-view stereo practices.
+
+ Training DVR on DTU Dataset
+Config & Dataset Structure Issues
+Attempted training DVR on DTU dataset after generation tests.
+
+Config file was hard to manage due to deeply nested folder structure.
+
+Got a "list index out of range" error: no valid images being loaded.
+
+Placeholder paths in the config:
+
+img_folder: "{scan_id}/{scan_id}/image"
+depth_folder: "{scan_id}/{scan_id}/depth"
+mask_folder: "{scan_id}/{scan_id}/mask"
+
+were likely not resolving correctly.
+
+Removed train/val/test split settings as the DTU dataset isn’t pre-split.
+
+Debugging Strategy
+Attempted using only one scan to isolate the issue — same error.
+
+Suspected mismatch in expected file structure vs. dataset layout.
+
+Plan:
+
+Either modify dataset folder structure manually.
+
+Or update the data loader logic to resolve paths correctly.
+
+Key Challenges
+DVR
+Environment setup was the most time-consuming part — much harder than anticipated.
+
+Required many compatibility fixes for packages, CUDA versions, and system dependencies.
+
+ DeepSDF Environment Attempts
+Platform Issues
+Attempted setup on both Anaconda (Windows) and WSL (Ubuntu).
+
+Considered using VMware, but GPU compatibility issues with NVIDIA cards in VMs made it impractical.
+
+Linux vs Windows Summary
+Linux (WSL) better for research code.
+
+Windows requires extra setup: Visual Studio Build Tools, vcpkg, custom compilers, etc.
+
+Key Errors & Roadblocks
+Missing dependencies: CLI11, Eigen3, Pangolin, nanoflann.
+
+OpenGL/Pangolin issues:
+
+Shader compilation errors.
+
+glUniform* and glShaderSource functions not recognized.
+
+CMake problems:
+
+Wrong or missing CMAKE_PREFIX_PATH.
+
+Manual path setting required for each dependency.
+
+Pkg-config failure: Pangolin not detected despite being installed.
+
+Build errors on shader-related includes (glsl.hpp not found).
+
+Final Attempt
+Switched from Windows Anaconda to WSL Ubuntu due to cleaner package management via apt.
+
+Still faced GPU and OpenGL issues under WSL due to limited support.
+
+Summary of Key Learnings so far:
+DVR required careful handling of environment versions (Python, PyTorch, CUDA).
+Dataset path structure is crucial — mismatch breaks training.
+DeepSDF is heavily Linux-oriented and difficult to compile on Windows/WSL due to OpenGL and CMake dependency issues.
+Better upfront time budgeting is needed for infrastructure and environment setup.

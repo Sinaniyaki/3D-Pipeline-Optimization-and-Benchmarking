@@ -1,0 +1,168 @@
+Python & Environment Setup
+Python Installation
+sudo apt update && sudo apt install python3.8 python3.8-venv python3.8-dev -y
+Installed Python 3.8 for DVR compatibility.
+
+Switched from Conda to pip virtual environments on WSL for better speed and reliability.
+
+Pip Environments Created
+DVR:
+source ~/projects/group_project/differentiable_volumetric_rendering/dvr_env/bin/activate
+
+DeepSDF:
+source ~/projects/group_project/DeepSDF/deepsdf_env/bin/activate
+
+DVR Setup & Execution
+Initial Setup
+Resolved missing packages manually:
+pip install scipy==1.4.1  # to match numpy 1.18
+
+DVR Working on WSL
+Successfully ran:
+
+python generate.py configs/demo/demo_combined.yaml
+
+Training Attempt on DTU Dataset
+Downloaded the dataset but faced nested folder structure issues.
+
+Custom config dvr_dtu.yaml created but DVR couldn’t locate the correct image paths.
+
+Even after removing split parameters and using a single scan, the loader failed due to mismatch in file structure and placeholder resolution.
+
+Switched to ShapeNet Dataset
+Moved to ShapeNet for consistency and support from existing configs.
+
+Modified ours_depth.yaml:
+
+batch_size and points reduced for 8GB GPU.
+
+Disabled lambda_normal and RGB loss.
+
+Focused on chairs:
+classes: ['03001627']
+
+Ensured category exists in metadata to avoid KeyError.
+
+DVR Training Progress
+Successfully ran:
+python train.py configs/single_view_reconstruction/multi_view_supervision/ours_depth.yaml
+
+
+raining stable for 30,000 iterations:
+
+Single-class training (chairs)
+
+Depth-only supervision
+
+Logged to TensorBoard
+
+Checkpoints and validation working as expected
+
+Mesh generation:
+python generate.py configs/single_view_reconstruction/multi_view_supervision/ours_depth.yaml
+
+
+DeepSDF Setup & Fixes
+Repository
+Cloned forked repo:
+Lixiyao-meow/DeepSDF
+
+Environment Setup
+Created deepsdf_env (Python 3.8.20)
+
+Installed dependencies via pip
+
+CMake & dependency issues:
+
+Needed to switch from C++14 ➝ C++17
+
+Fixed nanoflann header not found
+
+Pangolin: upgraded version caused compatibility issues:
+
+Changed all .get() to std::get()
+
+Adjusted .find() usage for std::variant structure
+
+Pangolin Build Fix
+Broke target_link_libraries() into components:
+
+target_link_libraries(PreprocessMesh PRIVATE
+    CLI11::CLI11
+    pango_core
+    pango_display
+    pango_geometry
+    pango_opengl
+    cnpy
+    Eigen3::Eigen
+    nanoflann::nanoflann)
+
+After source and CMake fixes, build successful.
+
+Dataset Preparation
+ShapeNet Chair (03001627)
+Created preprocess_chairs.py:
+
+Sampled 15,000 SDF points per mesh
+
+Saved .npz to: ./processed_data/chair_train/
+
+Limited to 2,000 chairs
+
+DeepSDF Training
+ Custom Training Script
+Copied and modified:
+
+model/train.py → model/train_chair.py
+
+Enabled:
+
+TensorBoard logging
+
+GPU memory tracking
+
+Model size, param count, runtime logging
+
+Training command:
+python train_chair.py
+
+Mesh Reconstruction (DeepSDF)
+Pipeline (example_51.ply, etc.)
+Used optimized auto-decoding:
+
+Random latent vector
+
+800-iteration optimization
+
+SDF prediction via decoder
+
+Marching cubes → .ply mesh
+
+Main files:
+
+reconstruct.py
+
+model/reconstruct.py
+
+Evaluation & Comparison
+ DVR
+Trained 30K steps on ShapeNet chairs
+
+Meshes generated post-training
+
+Tracked:
+
+Inference time (via time.time())
+
+Peak GPU memory (via torch.cuda.max_memory_allocated())
+
+Metrics via:
+python eval_meshes.py
+
+DeepSDF
+Fixed Chamfer Distance / IoU evaluation
+Renamed .npz files to match ShapeNet folder names
+Adjusted voxel_size from 0.02 ➝ 0.05 to reduce misalignment issues
+
+
+

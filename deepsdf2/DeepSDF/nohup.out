@@ -1,0 +1,10 @@
+🔧 Using device: cuda
+📦 Loaded 50 training shapes.
+🚀 Starting training...
+Training:   0%|          | 0/6000 [00:00<?, ?epoch/s]Training:   0%|          | 0/6000 [00:00<?, ?epoch/s]
+Traceback (most recent call last):
+  File "train.py", line 4, in <module>
+    train.train_decoder(
+  File "/home/sina/projects/group_project/deepsdf2/DeepSDF/model/train.py", line 65, in train_decoder
+    indices = indices.to(device).unsqueeze(-1).repeat(1, 15000).view(-1)
+AttributeError: 'tuple' object has no attribute 'to'
