@@ -1,5 +1,5 @@
-# Deep Comparison Between DVR and DeepSDF
-*A Comparative Study on 3D Object Reconstruction (Final Project — CMPT 469)*
+# 3D Pipeline Optimization & Benchmarking
+* Deep Comparison Between DVR and DeepSDF: A Comparative Study on 3D Object Reconstruction (Final Project — CMPT 469)*
 
 **Authors:** Sina MohammadiNiyaki & Ali Nikan  
 **Course:** CMPT 469 — Computer Vision, Simon Fraser University (Spring 2025)  
