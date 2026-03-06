@@ -1,0 +1,24 @@
+inherit_from: configs/default.yaml 
+
+data:
+  classes: ['03001627']  # ← train only on chairs 
+
+model:
+  decoder_kwargs:
+    out_dim: 1
+  lambda_depth: 1.
+  lambda_rgb: 0.
+  lambda_normal: 0.0  # disables normal loss to reduce GPU memory use
+
+training:
+  out_dir: out/single_view_reconstruction/multi_view_supervision/ours_depth
+  model_selection_metric: loss_depth_eval
+  n_workers: 4          # use multiple threads for data loading
+  batch_size: 8         # lowered to avoid CUDA out-of-memory
+  batch_size_val: 4     # same for validation
+  n_training_points: 512   # fewer 3D samples = lower memory use
+  n_eval_points: 1000      # reduce load during validation
+
+generation:
+  with_colors: false   # skip color output since RGB loss is off
+  mesh_extension: 'off'  # use lightweight mesh format (.off)
